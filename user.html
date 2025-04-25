@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GitHub User Info</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background: #f5f5f5;
+    }
+    .user-info {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: auto;
+    }
+    img {
+      width: 100px;
+      border-radius: 50%;
+    }
+    a {
+      color: #0366d6;
+    }
+  </style>
+</head>
+<body>
+  <div class="user-info" id="userInfo">Loading...</div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get('username');
+    const userInfo = document.getElementById('userInfo');
+
+    if (username) {
+      fetch(`https://api.github.com/users/${username}`)
+        .then(res => res.json())
+        .then(user => {
+          userInfo.innerHTML = `
+            <div style="display: flex; align-items: center;">
+              <img src="${user.avatar_url}" alt="${user.login}">
+              <div style="margin-left: 20px;">
+                <h2>${user.name || user.login}</h2>
+                <p>${user.bio || 'No bio available'}</p>
+                <p><a href="${user.html_url}" target="_blank">View on GitHub</a></p>
+              </div>
+            </div>
+            <div style="margin-top: 20px;">
+              <p><strong>Followers:</strong> ${user.followers}</p>
+              <p><strong>Following:</strong> ${user.following}</p>
+              <p><strong>Public Repos:</strong> ${user.public_repos}</p>
+              ${user.company ? `<p><strong>Company:</strong> ${user.company}</p>` : ''}
+              ${user.blog ? `<p><strong>Website:</strong> <a href="${user.blog}" target="_blank">${user.blog}</a></p>` : ''}
+              ${user.location ? `<p><strong>Location:</strong> ${user.location}</p>` : ''}
+              ${user.twitter_username ? `<p><strong>Twitter:</strong> <a href="https://twitter.com/${user.twitter_username}" target="_blank">@${user.twitter_username}</a></p>` : ''}
+            </div>
+          `;
+        })
+        .catch(err => {
+          userInfo.innerHTML = '<p>Failed to fetch user data.</p>';
+          console.error(err);
+        });
+    } else {
+      userInfo.innerHTML = '<p>No username provided.</p>';
+    }
+  </script>
+</body>
+</html>
